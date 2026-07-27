@@ -9,11 +9,10 @@ import os
 
 load_dotenv()
 
-
 app = FastAPI()
 
 
-# Serve CSS / JS
+# Static files (CSS + JS)
 app.mount(
     "/static",
     StaticFiles(directory="frontend/static"),
@@ -21,62 +20,61 @@ app.mount(
 )
 
 
-# HTML folder
+# Templates
 templates = Jinja2Templates(
     directory="frontend/templates"
 )
 
 
-# Groq setup
+# Groq AI
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
 
 
-# Homepage
+# Website homepage
 @app.get("/")
 async def home(request: Request):
 
     return templates.TemplateResponse(
-        name="index.html",
-        context={
+        "index.html",
+        {
             "request": request
         }
     )
 
 
 
-# Health check
+# Test route
 @app.get("/status")
 async def status():
 
     return {
-        "status": "Velora AI backend is running 🚀"
+        "status": "Velora AI is running 🚀"
     }
 
 
 
-# Chat endpoint
+# AI Chat
 @app.post("/chat")
 async def chat(request: Request):
 
-    data = await request.json()
-
-    user_message = data.get("message")
-
-
-    if not user_message:
-
-        return JSONResponse(
-            {
-                "reply": "Please enter a message."
-            }
-        )
-
-
-
     try:
+
+        data = await request.json()
+
+        user_message = data.get("message")
+
+
+        if not user_message:
+
+            return JSONResponse(
+                {
+                    "reply": "Please type something."
+                }
+            )
+
 
         response = client.chat.completions.create(
 
@@ -85,7 +83,7 @@ async def chat(request: Request):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are Velora AI, a helpful intelligent assistant."
+                    "content": "You are Velora AI, a smart and helpful assistant."
                 },
                 {
                     "role": "user",
@@ -105,11 +103,11 @@ async def chat(request: Request):
 
     except Exception as e:
 
-        print(e)
+        print("ERROR:", e)
 
         return JSONResponse(
             {
-                "reply": "Velora is having trouble connecting 😭"
+                "reply": "Velora is having a server issue right now."
             },
             status_code=500
         )
