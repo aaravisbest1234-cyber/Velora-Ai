@@ -5,123 +5,136 @@ const welcome = document.getElementById("welcome");
 const orb = document.querySelector(".orb");
 const historyList = document.getElementById("history-list");
 
+let currentChat = {
+    title: "New Chat",
+    messages: []
+};
 
 
-let history = JSON.parse(localStorage.getItem("velora_history")) || [];
+// Load saved chat
+const saved = localStorage.getItem("velora_current_chat");
 
-loadHistory();
+if (saved) {
+    currentChat = JSON.parse(saved);
 
-
-
-function saveHistory(text){
-
-    history.push(text);
-
-    localStorage.setItem(
-        "velora_history",
-        JSON.stringify(history)
-    );
-
-    loadHistory();
-
-}
-
-
-
-
-function loadHistory(){
-
-    historyList.innerHTML="";
-
-
-    history.slice(-10).reverse().forEach(item=>{
-
-
-        let btn=document.createElement("button");
-
-        btn.className="history-item";
-
-        btn.innerText=item.substring(0,25)+"...";
-
-
-        historyList.appendChild(btn);
-
-
+    currentChat.messages.forEach(msg => {
+        addMessageInstant(msg.text, msg.type);
     });
 
+    updateHistory();
+}
+
+
+
+function saveChat(){
+
+    localStorage.setItem(
+        "velora_current_chat",
+        JSON.stringify(currentChat)
+    );
+
+}
+
+
+
+function updateHistory(){
+
+    historyList.innerHTML = "";
+
+    let btn = document.createElement("button");
+
+    btn.className = "history-item";
+
+    btn.innerText = "📝 " + currentChat.title;
+
+    historyList.appendChild(btn);
+
 }
 
 
 
 
-function addMessage(text,type){
 
+function addMessageInstant(text,type){
 
-    const div=document.createElement("div");
-
+    let div=document.createElement("div");
 
     div.className="message "+type;
 
+    div.innerText=text;
+
+    chat.appendChild(div);
+
+}
+
+
+
+
+// Smooth AI typing
+
+function addMessage(text,type){
+
+    let div=document.createElement("div");
+
+    div.className="message "+type;
 
     chat.appendChild(div);
 
 
-
-    // letter animation
-
     let words=text.split(" ");
-
 
     let i=0;
 
 
-    let interval=setInterval(()=>{
+    let timer=setInterval(()=>{
 
 
         if(i>=words.length){
 
-            clearInterval(interval);
+            clearInterval(timer);
 
             return;
 
         }
 
 
-
         let span=document.createElement("span");
-
 
         span.className="word";
 
-
         span.innerText=words[i]+" ";
-
 
         div.appendChild(span);
 
 
         i++;
 
-
-
         chat.scrollTop=chat.scrollHeight;
 
 
+    },60);
 
-    },80);
+
+    currentChat.messages.push({
+
+        text:text,
+        type:type
+
+    });
 
 
+    saveChat();
 
 }
 
 
 
 
-function typingAnimation(){
+
+function showTyping(){
 
 
-    const div=document.createElement("div");
-
+    let div=document.createElement("div");
 
     div.className="message ai typing";
 
@@ -140,6 +153,34 @@ function typingAnimation(){
 
     return div;
 
+}
+
+
+
+
+
+async function analyzeTitle(){
+
+
+    if(currentChat.messages.length < 4) return;
+
+
+    if(currentChat.title !== "New Chat") return;
+
+
+
+    let first = currentChat.messages[0].text;
+
+
+    currentChat.title =
+        first.substring(0,30);
+
+
+
+    updateHistory();
+
+    saveChat();
+
 
 }
 
@@ -151,22 +192,20 @@ function typingAnimation(){
 async function sendMessage(){
 
 
-    let message=input.value.trim();
+    let text=input.value.trim();
 
 
-    if(!message)return;
+    if(!text) return;
 
 
 
     welcome.classList.add("fade-out");
 
 
-
-    addMessage(message,"user");
-
-
-    saveHistory(message);
-
+    addMessage(
+        text,
+        "user"
+    );
 
 
     input.value="";
@@ -177,15 +216,14 @@ async function sendMessage(){
 
 
 
-    let typing=typingAnimation();
+    let typing = showTyping();
 
 
 
     try{
 
 
-        let res=await fetch("/chat",{
-
+        let response = await fetch("/chat",{
 
             method:"POST",
 
@@ -195,19 +233,17 @@ async function sendMessage(){
 
             },
 
-
             body:JSON.stringify({
 
-                message:message
+                message:text
 
             })
-
 
         });
 
 
 
-        let data=await res.json();
+        let data = await response.json();
 
 
 
@@ -228,35 +264,36 @@ async function sendMessage(){
 
 
 
-        setTimeout(()=>{
+        analyzeTitle();
 
+
+
+        setTimeout(()=>{
 
             orb.classList.remove("replying");
 
-
-        },1500);
+        },1200);
 
 
 
     }
 
 
-    catch(err){
+    catch(error){
 
 
         typing.remove();
-
 
         orb.classList.remove("thinking");
 
 
         addMessage(
-            "Something went wrong.",
+            "Connection error.",
             "ai"
         );
 
 
-        console.log(err);
+        console.log(error);
 
 
     }
@@ -267,7 +304,8 @@ async function sendMessage(){
 
 
 
-sendBtn.onclick=sendMessage;
+
+sendBtn.onclick = sendMessage;
 
 
 
@@ -275,17 +313,16 @@ input.addEventListener(
 "keydown",
 (e)=>{
 
+    if(e.key==="Enter" && !e.shiftKey){
 
-if(e.key==="Enter" && !e.shiftKey){
+        e.preventDefault();
 
-e.preventDefault();
+        sendMessage();
 
-sendMessage();
-
-}
-
+    }
 
 });
+
 
 
 
@@ -294,9 +331,29 @@ sendMessage();
 document.getElementById("new-chat").onclick=()=>{
 
 
-chat.innerHTML="";
+    currentChat={
 
-welcome.classList.remove("fade-out");
+        title:"New Chat",
+
+        messages:[]
+
+    };
+
+
+    localStorage.removeItem(
+        "velora_current_chat"
+    );
+
+
+    chat.innerHTML="";
+
+
+    welcome.classList.remove(
+        "fade-out"
+    );
+
+
+    updateHistory();
 
 
 };
