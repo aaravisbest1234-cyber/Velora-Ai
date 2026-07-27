@@ -1,0 +1,1008 @@
+ * {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+body {
+    margin:0;
+    background:#000;
+    color:white;
+    overflow:hidden;
+}
+
+
+.app {
+    display:flex;
+    height:100vh;
+}
+
+
+
+/* SIDEBAR */
+
+.sidebar {
+
+    width:350px;
+
+    background:#050505;
+
+    border-right:1px solid #222;
+
+    padding:25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+
+.sidebar-header {
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    border-bottom:1px solid #222;
+
+    padding-bottom:25px;
+
+}
+
+
+.sidebar-header h1 {
+
+    font-size:28px;
+
+}
+
+
+
+.menu {
+
+    margin-top:20px;
+
+}
+
+
+
+.menu-button {
+
+    width:100%;
+
+    padding:15px;
+
+    background:none;
+
+    border:none;
+
+    color:white;
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:center;
+
+    font-size:17px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+}
+
+
+.menu-button:hover {
+
+    background:#181818;
+
+}
+
+
+
+.disabled {
+
+    opacity:.45;
+
+    cursor:not-allowed;
+
+}
+
+
+
+.menu-button small {
+
+    display:block;
+
+    color:#777;
+
+    font-size:12px;
+
+}
+
+
+
+
+
+/* HISTORY */
+
+
+.history {
+
+    margin-top:25px;
+
+    border-top:1px solid #222;
+
+    padding-top:20px;
+
+}
+
+
+
+.history h3 {
+
+    color:#777;
+
+    font-size:14px;
+
+}
+
+
+
+.history-item {
+
+    width:100%;
+
+    border:none;
+
+    background:none;
+
+    color:#ddd;
+
+    padding:12px;
+
+    text-align:left;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+}
+
+
+
+.history-item:hover {
+
+    background:#171717;
+
+}
+
+
+
+
+
+
+
+/* USER */
+
+
+.user-card {
+
+    margin-top:auto;
+
+    border-top:1px solid #222;
+
+    padding-top:20px;
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:center;
+
+}
+
+
+
+.avatar {
+
+    width:45px;
+
+    height:45px;
+
+    background:#222;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-weight:bold;
+
+}
+
+
+
+
+
+
+
+/* MAIN */
+
+
+.main {
+
+    flex:1;
+
+    position:relative;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+
+
+
+
+/* WELCOME */
+
+
+.welcome {
+
+    position:absolute;
+
+    text-align:center;
+
+    z-index:2;
+
+    transition:.5s ease;
+
+}
+
+
+
+.welcome h1 {
+
+    font-size:70px;
+
+    margin-top:30px;
+
+}
+
+
+
+.welcome p {
+
+    color:#888;
+
+    font-size:20px;
+
+}
+
+
+
+
+
+.fade-out {
+
+    opacity:0;
+
+    transform:scale(.9);
+
+    visibility:hidden;
+
+    pointer-events:none;
+
+}
+
+
+
+
+
+
+
+/* ORB */
+
+
+.orb {
+
+    width:190px;
+
+    height:190px;
+
+    border-radius:50%;
+
+
+    background:white;
+
+
+    box-shadow:
+
+    0 0 50px white,
+
+    0 0 120px #555;
+
+
+    animation:float 4s infinite;
+
+}
+
+
+
+@keyframes float {
+
+
+    50% {
+
+        transform:translateY(-15px);
+
+    }
+
+}
+
+
+
+
+
+
+
+.orb.thinking {
+
+
+    background:#6b8cff;
+
+
+    box-shadow:
+
+    0 0 70px #6b8cff;
+
+
+    animation:pulse 1s infinite;
+
+}
+
+
+
+@keyframes pulse {
+
+
+    50% {
+
+        transform:scale(1.12);
+
+    }
+
+}
+
+
+
+
+
+
+
+.orb.replying {
+
+
+    background:#b86cff;
+
+
+    box-shadow:
+
+    0 0 80px #b86cff;
+
+}
+
+
+
+
+
+
+
+/* CHAT */
+
+
+#chat-container {
+
+
+    position:absolute;
+
+
+    top:40px;
+
+    left:40px;
+
+    right:40px;
+
+    bottom:130px;
+
+
+
+    display:flex;
+
+    flex-direction:column;
+
+
+    gap:20px;
+
+
+    overflow-y:auto;
+
+
+    padding:30px;
+
+
+    z-index:5;
+
+}
+
+
+
+
+
+.message {
+
+
+    max-width:70%;
+
+
+    padding:15px 20px;
+
+
+    border-radius:20px;
+
+
+    font-size:16px;
+
+
+    animation:appear .25s;
+
+
+}
+
+
+
+.message.user {
+
+
+    align-self:flex-end;
+
+
+    background:#222;
+
+
+}
+
+
+
+
+
+.message.ai {
+
+
+    align-self:flex-start;
+
+
+    background:#111;
+
+
+    border:1px solid #333;
+
+
+}
+
+
+
+
+
+@keyframes appear {
+
+
+    from {
+
+        opacity:0;
+
+        transform:translateY(10px);
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+/* INPUT */
+
+
+.input-area {
+
+
+    position:absolute;
+
+
+    bottom:30px;
+
+
+    left:50%;
+
+
+    transform:translateX(-50%);
+
+
+    width:700px;
+
+
+    z-index:10;
+
+}
+
+
+
+.input-box {
+
+
+    background:#111;
+
+
+    border:1px solid #333;
+
+
+    border-radius:30px;
+
+
+    display:flex;
+
+
+    padding:12px 15px;
+
+
+}
+
+
+
+
+
+textarea {
+
+
+    flex:1;
+
+
+    background:none;
+
+
+    border:none;
+
+
+    outline:none;
+
+
+    resize:none;
+
+
+    color:white;
+
+
+    font-size:16px;
+
+
+}
+
+
+
+
+
+#send {
+
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    border:none;
+
+    cursor:pointer;
+
+}
+
+
+
+
+
+
+
+/* TYPING DOTS */
+
+
+.typing {
+
+    display:flex;
+
+    gap:7px;
+
+}
+
+
+
+.typing span {
+
+
+    width:9px;
+
+    height:9px;
+
+
+    background:#aaa;
+
+
+    border-radius:50%;
+
+
+    animation:typing 1.2s infinite;
+
+
+}
+
+
+
+.typing span:nth-child(2){
+
+    animation-delay:.2s;
+
+}
+
+
+
+.typing span:nth-child(3){
+
+    animation-delay:.4s;
+
+}
+
+
+
+@keyframes typing {
+
+
+    50% {
+
+        transform:translateY(-7px);
+
+        opacity:.5;
+
+    }
+
+}
+
+
+
+
+
+
+.word {
+
+
+    animation:word .2s;
+
+}
+
+
+
+@keyframes word {
+
+
+    from {
+
+        opacity:0;
+
+    }
+
+
+    to {
+
+        opacity:1;
+
+    }
+
+}
+/* =====================
+   VELORA ORB SYSTEM
+===================== */
+
+
+/* MAIN ORB */
+
+.orb {
+
+    width:190px;
+    height:190px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(
+        circle at 35% 30%,
+        #ffffff,
+        #d9d9d9 35%,
+        #777
+    );
+
+
+    position:relative;
+
+
+    box-shadow:
+
+    0 0 40px rgba(255,255,255,.8),
+    0 0 120px rgba(255,255,255,.25);
+
+
+    animation:
+
+    veloraFloat 5s ease-in-out infinite;
+
+
+    overflow:hidden;
+
+}
+
+
+
+/* INNER LIGHT */
+
+.orb::before {
+
+
+    content:"";
+
+
+    position:absolute;
+
+
+    width:80px;
+
+    height:80px;
+
+
+    top:25px;
+
+    left:35px;
+
+
+    background:white;
+
+
+    border-radius:50%;
+
+
+    filter:blur(20px);
+
+
+    opacity:.8;
+
+
+}
+
+
+
+
+/* MOVING ENERGY */
+
+.orb::after {
+
+
+    content:"";
+
+
+    position:absolute;
+
+
+    inset:-40px;
+
+
+    background:
+
+    conic-gradient(
+
+    transparent,
+
+    white,
+
+    transparent,
+
+    #888,
+
+    transparent
+
+    );
+
+
+    animation:
+
+    orbSpin 6s linear infinite;
+
+
+    opacity:.5;
+
+}
+
+
+
+
+
+@keyframes veloraFloat {
+
+
+    0%,100% {
+
+
+        transform:translateY(0);
+
+
+    }
+
+
+    50% {
+
+
+        transform:translateY(-18px);
+
+
+    }
+
+
+}
+
+
+
+
+
+@keyframes orbSpin {
+
+
+    from {
+
+
+        rotate:0deg;
+
+
+    }
+
+
+    to {
+
+
+        rotate:360deg;
+
+
+    }
+
+
+}
+
+
+
+
+
+
+/* ORB GLOW RING */
+
+
+.orb-ring {
+
+
+    position:absolute;
+
+
+    width:240px;
+
+    height:240px;
+
+
+    border-radius:50%;
+
+
+    border:1px solid rgba(255,255,255,.3);
+
+
+    animation:
+
+    ringPulse 3s infinite;
+
+
+}
+
+
+
+
+
+
+@keyframes ringPulse {
+
+
+    50% {
+
+
+        transform:scale(1.15);
+
+
+        opacity:.3;
+
+
+    }
+
+}
+
+
+
+
+
+/* ORB PARTICLES */
+
+
+.orb-particle {
+
+
+    position:absolute;
+
+
+    width:5px;
+
+    height:5px;
+
+
+    background:white;
+
+
+    border-radius:50%;
+
+
+    animation:
+
+    particleMove 4s infinite;
+
+
+}
+
+
+
+
+
+@keyframes particleMove {
+
+
+    50% {
+
+
+        transform:
+
+        translateY(-40px)
+
+        translateX(20px);
+
+
+        opacity:.2;
+
+
+    }
+
+}
