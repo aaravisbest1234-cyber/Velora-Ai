@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Request
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from groq import Groq
 from dotenv import load_dotenv
@@ -9,85 +8,85 @@ import os
 
 load_dotenv()
 
-
 app = FastAPI()
 
 
-
-app.mount(
-    "/static",
-    StaticFiles(directory="frontend/static"),
-    name="static"
+# Allow Vercel frontend to talk to this backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://velora-gpt.vercel.app",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
-
-templates = Jinja2Templates(
-    directory="frontend/templates"
-)
-
-
-
+# Groq setup
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
 
-
-
-
 @app.get("/")
-async def home(request: Request):
-
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={}
-    )
-
-
-
-
+async def home():
+    return {
+        "status": "Velora AI backend is running 🚀"
+    }
 
 
 @app.post("/chat")
 async def chat(request: Request):
 
-    data = await request.json()
+    try:
+        data = await request.json()
 
-    user_message = data["message"]
+        user_message = data.get("message")
+
+        if not user_message:
+            return JSONResponse(
+                {
+                    "error": "Message missing"
+                },
+                status_code=400
+            )
 
 
+        response = client.chat.completions.create(
 
-    response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
 
-        model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system",
+                    "content":
+                    "You are Velora AI, a helpful intelligent AI assistant. Answer clearly and naturally."
+                },
 
-        messages=[
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+        )
 
+
+        reply = response.choices[0].message.content
+
+
+        return {
+            "reply": reply
+        }
+
+
+    except Exception as e:
+
+        return JSONResponse(
             {
-                "role":"system",
-                "content":
-                "You are Velora AI, a helpful intelligent assistant."
+                "error": str(e)
             },
-
-
-            {
-                "role":"user",
-                "content":user_message
-            }
-
-        ]
-
-    )
-
-
-    reply = response.choices[0].message.content
-
-
-
-    return JSONResponse({
-
-        "reply":reply
-
-    })
+            status_code=500
+        )
