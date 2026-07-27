@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from groq import Groq
 from dotenv import load_dotenv
@@ -8,85 +9,97 @@ import os
 
 load_dotenv()
 
+
 app = FastAPI()
 
 
-# Allow Vercel frontend to talk to this backend
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "https://velora-gpt.vercel.app",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# Static files (CSS, JS)
+app.mount(
+    "/static",
+    StaticFiles(directory="frontend/static"),
+    name="static"
 )
 
 
-# Groq setup
+# HTML templates
+templates = Jinja2Templates(
+    directory="frontend/templates"
+)
+
+
+# Groq client
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
 
+
+# Home page
 @app.get("/")
-async def home():
+async def home(request: Request):
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request
+        }
+    )
+
+
+
+# Test route
+@app.get("/status")
+async def status():
+
     return {
         "status": "Velora AI backend is running 🚀"
     }
 
 
+
+# Chat API
 @app.post("/chat")
 async def chat(request: Request):
 
-    try:
-        data = await request.json()
+    data = await request.json()
 
-        user_message = data.get("message")
-
-        if not user_message:
-            return JSONResponse(
-                {
-                    "error": "Message missing"
-                },
-                status_code=400
-            )
+    user_message = data.get("message")
 
 
-        response = client.chat.completions.create(
-
-            model="llama-3.3-70b-versatile",
-
-            messages=[
-                {
-                    "role": "system",
-                    "content":
-                    "You are Velora AI, a helpful intelligent AI assistant. Answer clearly and naturally."
-                },
-
-                {
-                    "role": "user",
-                    "content": user_message
-                }
-            ]
-        )
+    if not user_message:
+        return JSONResponse({
+            "reply": "Please enter a message."
+        })
 
 
-        reply = response.choices[0].message.content
 
+    response = client.chat.completions.create(
 
-        return {
-            "reply": reply
-        }
+        model="llama-3.3-70b-versatile",
 
+        messages=[
 
-    except Exception as e:
-
-        return JSONResponse(
             {
-                "error": str(e)
+                "role": "system",
+                "content":
+                "You are Velora AI, a smart helpful assistant."
             },
-            status_code=500
-        )
+
+            {
+                "role": "user",
+                "content": user_message
+            }
+
+        ]
+
+    )
+
+
+    reply = response.choices[0].message.content
+
+
+    return JSONResponse({
+
+        "reply": reply
+
+    })
