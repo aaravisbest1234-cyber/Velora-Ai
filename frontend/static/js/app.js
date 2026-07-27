@@ -3,23 +3,20 @@ const API_URL = "https://velora-ai-v8k8.onrender.com/chat";
 
 const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
+const sendButton = document.getElementById("send-btn");
 
 
+function addMessage(message, type) {
+    const div = document.createElement("div");
 
-function addMessage(text, sender) {
+    div.classList.add("message", type);
 
-    const message = document.createElement("div");
+    div.textContent = message;
 
-    message.className = sender;
-
-    message.innerText = text;
-
-    chatBox.appendChild(message);
+    chatBox.appendChild(div);
 
     chatBox.scrollTop = chatBox.scrollHeight;
 }
-
 
 
 
@@ -27,22 +24,25 @@ async function sendMessage() {
 
     const message = input.value.trim();
 
-
     if (!message) return;
 
 
     addMessage(message, "user");
 
-
     input.value = "";
 
 
-    addMessage("Thinking...", "bot");
+    const loading = document.createElement("div");
+    loading.classList.add("message", "bot");
+    loading.textContent = "Velora is thinking...";
+
+    chatBox.appendChild(loading);
+
 
 
     try {
 
-        const response = await fetch(API_URL, {
+        const res = await fetch(API_URL, {
 
             method: "POST",
 
@@ -58,12 +58,10 @@ async function sendMessage() {
 
 
 
-        const data = await response.json();
+        const data = await res.json();
 
 
-        // remove Thinking...
-        chatBox.lastChild.remove();
-
+        loading.remove();
 
 
         if (data.reply) {
@@ -72,22 +70,23 @@ async function sendMessage() {
 
         } else {
 
-            addMessage("Something went wrong 😕", "bot");
+            addMessage(
+                "No response received.",
+                "bot"
+            );
 
         }
 
 
+
     } catch (error) {
 
-
-        chatBox.lastChild.remove();
-
+        loading.remove();
 
         addMessage(
-            "Server error. Try again later.",
+            "⚠️ Cannot connect to Velora server.",
             "bot"
         );
-
 
         console.error(error);
 
@@ -97,7 +96,7 @@ async function sendMessage() {
 
 
 
-sendBtn.addEventListener(
+sendButton.addEventListener(
     "click",
     sendMessage
 );
@@ -106,9 +105,9 @@ sendBtn.addEventListener(
 
 input.addEventListener(
     "keydown",
-    function(event){
+    (e) => {
 
-        if(event.key === "Enter"){
+        if (e.key === "Enter") {
 
             sendMessage();
 
