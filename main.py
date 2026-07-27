@@ -12,7 +12,7 @@ load_dotenv()
 app = FastAPI()
 
 
-# Static files (CSS + JS)
+# Static files
 app.mount(
     "/static",
     StaticFiles(directory="frontend/static"),
@@ -26,27 +26,24 @@ templates = Jinja2Templates(
 )
 
 
-# Groq AI
+# Groq client
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
 
-
-# Website homepage
+# Homepage
 @app.get("/")
 async def home(request: Request):
 
     return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request
-        }
+        request=request,
+        name="index.html",
+        context={}
     )
 
 
-
-# Test route
+# Check server
 @app.get("/status")
 async def status():
 
@@ -55,8 +52,7 @@ async def status():
     }
 
 
-
-# AI Chat
+# Chat
 @app.post("/chat")
 async def chat(request: Request):
 
@@ -69,11 +65,9 @@ async def chat(request: Request):
 
         if not user_message:
 
-            return JSONResponse(
-                {
-                    "reply": "Please type something."
-                }
-            )
+            return {
+                "reply": "Please type a message."
+            }
 
 
         response = client.chat.completions.create(
@@ -83,13 +77,14 @@ async def chat(request: Request):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are Velora AI, a smart and helpful assistant."
+                    "content": "You are Velora AI, a helpful intelligent assistant."
                 },
                 {
                     "role": "user",
                     "content": user_message
                 }
             ]
+
         )
 
 
@@ -107,7 +102,7 @@ async def chat(request: Request):
 
         return JSONResponse(
             {
-                "reply": "Velora is having a server issue right now."
+                "reply": "Velora AI server error."
             },
             status_code=500
         )
