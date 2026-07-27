@@ -1,19 +1,17 @@
-const API_URL = "https://velora-ai-v8k8.onrender.com/chat";
-
-
 const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("user-input");
-const sendButton = document.getElementById("send-btn");
+const sendBtn = document.getElementById("send-btn");
 
 
-function addMessage(message, type) {
-    const div = document.createElement("div");
+function addMessage(text, sender) {
 
-    div.classList.add("message", type);
+    const message = document.createElement("div");
 
-    div.textContent = message;
+    message.className = `message ${sender}`;
 
-    chatBox.appendChild(div);
+    message.innerText = text;
+
+    chatBox.appendChild(message);
 
     chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -22,27 +20,29 @@ function addMessage(message, type) {
 
 async function sendMessage() {
 
-    const message = input.value.trim();
+    const text = input.value.trim();
 
-    if (!message) return;
+    if (!text) return;
 
 
-    addMessage(message, "user");
+    addMessage(text, "user");
 
     input.value = "";
 
 
-    const loading = document.createElement("div");
-    loading.classList.add("message", "bot");
-    loading.textContent = "Velora is thinking...";
+    const thinking = document.createElement("div");
 
-    chatBox.appendChild(loading);
+    thinking.className = "message bot";
+
+    thinking.innerText = "Velora GPT is thinking...";
+
+    chatBox.appendChild(thinking);
 
 
 
     try {
 
-        const res = await fetch(API_URL, {
+        const response = await fetch("/chat", {
 
             method: "POST",
 
@@ -51,17 +51,17 @@ async function sendMessage() {
             },
 
             body: JSON.stringify({
-                message: message
+                message: text
             })
 
         });
 
 
 
-        const data = await res.json();
+        const data = await response.json();
 
 
-        loading.remove();
+        thinking.remove();
 
 
         if (data.reply) {
@@ -78,15 +78,17 @@ async function sendMessage() {
         }
 
 
-
     } catch (error) {
 
-        loading.remove();
+
+        thinking.remove();
+
 
         addMessage(
-            "⚠️ Cannot connect to Velora server.",
+            "⚠️ Cannot connect to Velora GPT.",
             "bot"
         );
+
 
         console.error(error);
 
@@ -96,7 +98,7 @@ async function sendMessage() {
 
 
 
-sendButton.addEventListener(
+sendBtn.addEventListener(
     "click",
     sendMessage
 );
@@ -105,9 +107,9 @@ sendButton.addEventListener(
 
 input.addEventListener(
     "keydown",
-    (e) => {
+    function(event) {
 
-        if (e.key === "Enter") {
+        if (event.key === "Enter") {
 
             sendMessage();
 
