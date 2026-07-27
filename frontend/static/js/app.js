@@ -1,572 +1,118 @@
-const sendBtn = document.getElementById("send");
-const input = document.getElementById("message");
-
-const welcome = document.getElementById("welcome");
-const chat = document.getElementById("chat-container");
-
-const orb = document.querySelector(".orb");
-
-const historyBox = document.getElementById("chat-history");
-const newChatBtn = document.getElementById("new-chat");
+const API_URL = "https://velora-ai-v8k8.onrender.com/chat";
 
 
-let chats = JSON.parse(
-    localStorage.getItem("veloraChats")
-) || [];
-
-
-let currentChat = [];
-
-let chatSaved = false;
+const chatBox = document.getElementById("chat-box");
+const input = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
 
 
 
-loadHistory();
+function addMessage(text, sender) {
 
+    const message = document.createElement("div");
 
+    message.className = sender;
 
+    message.innerText = text;
 
-// SEND
+    chatBox.appendChild(message);
 
-sendBtn.addEventListener("click", () => {
-
-    sendMessage();
-
-});
-
-
-
-input.addEventListener("keydown", (e)=>{
-
-    if(e.key === "Enter" && !e.shiftKey){
-
-        e.preventDefault();
-
-        sendMessage();
-
-    }
-
-});
-
-
-
-
-// NEW CHAT
-
-if(newChatBtn){
-
-    newChatBtn.addEventListener("click",()=>{
-
-
-        currentChat = [];
-
-        chatSaved = false;
-
-
-        chat.innerHTML = "";
-
-
-        welcome.classList.remove("fade-out");
-
-
-    });
-
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 
 
 
+async function sendMessage() {
+
+    const message = input.value.trim();
 
 
-
-async function sendMessage(){
-
-
-    const text = input.value.trim();
+    if (!message) return;
 
 
-
-    if(!text) return;
-
-
-
-    chatSaved = false;
-
-
-
-    welcome.classList.add("fade-out");
-
-
-
-    addMessage(text,"user");
-
-
-
-    currentChat.push({
-
-        role:"user",
-
-        text:text
-
-    });
-
+    addMessage(message, "user");
 
 
     input.value = "";
 
 
-
-
-
-    const aiBubble = document.createElement("div");
-
-
-    aiBubble.className="message ai";
-
-
-
-    aiBubble.innerHTML = `
-
-        <div class="typing">
-
-            <span></span>
-            <span></span>
-            <span></span>
-
-        </div>
-
-    `;
-
-
-
-    chat.appendChild(aiBubble);
-
-
-
-
-
-    orb?.classList.remove("replying");
-
-    orb?.classList.add("thinking");
-
-
-
+    addMessage("Thinking...", "bot");
 
 
     try {
 
+        const response = await fetch(API_URL, {
 
-        const response = await fetch("/chat",{
+            method: "POST",
 
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":"application/json"
-
+            headers: {
+                "Content-Type": "application/json"
             },
 
-
-            body:JSON.stringify({
-
-                message:text
-
+            body: JSON.stringify({
+                message: message
             })
 
         });
-
-
 
 
 
         const data = await response.json();
 
 
+        // remove Thinking...
+        chatBox.lastChild.remove();
 
-        aiBubble.innerHTML="";
 
 
+        if (data.reply) {
 
-        orb?.classList.remove("thinking");
+            addMessage(data.reply, "bot");
 
-        orb?.classList.add("replying");
+        } else {
 
-
-
-
-        currentChat.push({
-
-            role:"ai",
-
-            text:data.reply
-
-        });
-
-
-
-
-        typeAI(data.reply,aiBubble);
-
-
-
-    }
-
-
-
-    catch(error){
-
-
-        console.error(error);
-
-
-        aiBubble.innerText =
-        "Something went wrong.";
-
-
-        orb?.classList.remove("thinking");
-
-
-    }
-
-
-}
-
-
-
-
-
-
-
-
-
-function addMessage(text,type){
-
-
-    const bubble=document.createElement("div");
-
-
-    bubble.className="message "+type;
-
-
-    bubble.textContent=text;
-
-
-    chat.appendChild(bubble);
-
-
-    chat.scrollTop=chat.scrollHeight;
-
-
-}
-
-
-
-
-
-
-
-
-
-function typeAI(text,bubble){
-
-
-    const words =
-    text.split(" ");
-
-
-
-    let index=0;
-
-
-
-    function next(){
-
-
-
-        if(index >= words.length){
-
-
-            orb?.classList.remove("replying");
-
-
-            saveChat();
-
-
-            return;
-
+            addMessage("Something went wrong 😕", "bot");
 
         }
 
 
+    } catch (error) {
 
 
-        const span=document.createElement("span");
-
-
-        span.className="word";
-
-
-        span.textContent =
-        (index===0 ? "" : " ")
-        + words[index];
-
-
-
-        bubble.appendChild(span);
-
-
-
-        index++;
-
-
-
-        chat.scrollTop =
-        chat.scrollHeight;
-
-
-
-        setTimeout(next,90);
-
-
-    }
-
-
-
-    next();
-
-
-}
-
-
-
-
-
-
-
-
-
-async function saveChat(){
-
-
-    if(chatSaved) return;
-
-
-    if(currentChat.length < 2) return;
-
-
-
-    const title = await generateTitle();
-
-
-
-
-    chats.unshift({
-
-        title:title,
-
-        messages:[...currentChat]
-
-    });
-
-
-
-    chats = chats.slice(0,10);
-
-
-
-    localStorage.setItem(
-
-        "veloraChats",
-
-        JSON.stringify(chats)
-
-    );
-
-
-
-    chatSaved=true;
-
-
-
-    loadHistory();
-
-
-}
-
-
-
-
-
-
-
-
-
-async function generateTitle(){
-
-
-    try{
-
-
-        const response = await fetch("/chat",{
-
-
-            method:"POST",
-
-
-            headers:{
-
-
-                "Content-Type":"application/json"
-
-
-            },
-
-
-            body:JSON.stringify({
-
-
-                message:`
-
-Make a short title (max 5 words)
-
-for this conversation:
-
-${currentChat[0].text}
-
-Only return the title.
-
-                `
-
-
-            })
-
-
-        });
-
-
-
-
-        const data =
-        await response.json();
-
-
-
-
-        return data.reply.trim();
-
-
-
-    }
-
-
-    catch(error){
-
-
-        return "New Conversation";
-
-
-    }
-
-
-}
-
-
-
-
-
-
-
-
-
-function loadHistory(){
-
-
-    if(!historyBox) return;
-
-
-
-    historyBox.innerHTML="";
-
-
-
-    chats.forEach((item,index)=>{
-
-
-        const button =
-        document.createElement("button");
-
-
-
-        button.className="history-item";
-
-
-        button.innerText=item.title;
-
-
-
-        button.onclick=()=>{
-
-
-            loadChat(index);
-
-
-        };
-
-
-
-        historyBox.appendChild(button);
-
-
-
-    });
-
-
-}
-
-
-
-
-
-
-
-
-
-function loadChat(index){
-
-
-    const selected =
-    chats[index];
-
-
-
-    chat.innerHTML="";
-
-
-
-    currentChat =
-    [...selected.messages];
-
-
-
-    chatSaved=true;
-
-
-
-    selected.messages.forEach(msg=>{
+        chatBox.lastChild.remove();
 
 
         addMessage(
-
-            msg.text,
-
-            msg.role==="user"
-            ? "user"
-            : "ai"
-
+            "Server error. Try again later.",
+            "bot"
         );
 
 
-    });
+        console.error(error);
 
+    }
 
 }
+
+
+
+sendBtn.addEventListener(
+    "click",
+    sendMessage
+);
+
+
+
+input.addEventListener(
+    "keydown",
+    function(event){
+
+        if(event.key === "Enter"){
+
+            sendMessage();
+
+        }
+
+    }
+);
