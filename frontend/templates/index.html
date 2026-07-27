@@ -2,311 +2,112 @@
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Velora AI</title>
-
+<title>Velora GPT</title>
 
 <link rel="stylesheet" href="/static/css/style.css">
 
 </head>
 
 
-
 <body>
-
 
 <div class="app">
 
 
-
 <!-- SIDEBAR -->
-
 <aside class="sidebar">
 
-
 <div class="sidebar-header">
-
-<h1>Velora AI</h1>
-
-
-<div class="sidebar-icons">
-
-🔍
-
+<h1>Velora GPT</h1>
 </div>
-
-
-</div>
-
-
-
 
 
 <div class="menu">
 
-
-
 <button class="menu-button" id="new-chat">
-
 <span>✎</span>
-
 New Chat
-
 </button>
 
 
-
-
-
 <button class="menu-button disabled">
-
-
 <span>🖼</span>
-
-
 <div>
-
 Images
-
-<small>
-Coming Soon
-</small>
-
-
+<small>Coming Soon</small>
 </div>
-
-
 </button>
-
-
-
-
-
 
 
 <button class="menu-button disabled">
-
-
 <span>📚</span>
-
-
 <div>
-
 Library
-
-<small>
-Coming Soon
-</small>
-
-
+<small>Coming Soon</small>
 </div>
-
-
 </button>
 
 
-
 </div>
-
-
-
-
-
-
-
-
-<!-- CHAT HISTORY -->
-
-
-<div class="history">
-
-
-<h3>
-Recent Chats
-</h3>
-
-
-<div id="chat-history">
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<!-- USER -->
-
-
-<div class="user-card">
-
-
-<div class="avatar">
-
-AA
-
-</div>
-
-
-<div>
-
-<h3>
-Aarav Sharma
-</h3>
-
-
-<p>
-Free
-</p>
-
-
-</div>
-
-
-
-</div>
-
-
 
 </aside>
 
 
 
 
+<!-- MAIN CHAT -->
+
+<main class="chat">
 
 
-
-
-
-<!-- MAIN -->
-
-<main class="main">
-
-
-
-
-
-
-<!-- WELCOME SCREEN -->
-
-
-<section class="welcome" id="welcome">
-
-
-
-<div class="orb">
-
+<div class="chat-header">
+<h2>Velora GPT</h2>
+<div class="orb"></div>
 </div>
 
 
 
-<h1>
-Velora AI
-</h1>
+<div id="chat-box" class="chat-box">
 
-
-
-<p>
-Your intelligent AI assistant.
-</p>
-
-
-
-</section>
-
-
-
-
-
-
-
-
-<!-- CHAT MESSAGES -->
-
-
-<div id="chat-container">
-
+<div class="message bot">
+Hello 👋 I am Velora GPT. How can I help you?
+</div>
 
 </div>
 
 
-
-
-
-
-
-
-<!-- INPUT -->
 
 
 <div class="input-area">
 
-
-<div class="input-box">
-
-
-<textarea
-
-id="message"
-
-placeholder="What's on your mind today?"
-
-rows="1">
+<input
+id="user-input"
+type="text"
+placeholder="Message Velora GPT..."
+autocomplete="off"
+/>
 
 
-</textarea>
-
-
-
-
-
-<button id="send">
-
+<button id="send-btn">
 ➤
-
 </button>
 
 
-
 </div>
-
-
-
-</div>
-
-
-
 
 
 </main>
 
 
-
-
-
 </div>
-
-
-
-
-
 
 
 
 <script src="/static/js/app.js"></script>
 
-
 </body>
-
 
 </html>
