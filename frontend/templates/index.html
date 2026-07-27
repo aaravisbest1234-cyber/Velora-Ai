@@ -14,89 +14,168 @@
 
 <body>
 
+
 <div class="app">
 
 
 <!-- SIDEBAR -->
+
 <aside class="sidebar">
 
 <div class="sidebar-header">
+
 <h1>Velora GPT</h1>
+
+<div class="sidebar-icons">
+🔍
 </div>
+
+</div>
+
 
 
 <div class="menu">
 
+
 <button class="menu-button" id="new-chat">
+
 <span>✎</span>
+
 New Chat
+
 </button>
 
 
+
 <button class="menu-button disabled">
+
 <span>🖼</span>
+
 <div>
+
 Images
-<small>Coming Soon</small>
+
+<small>
+Coming Soon
+</small>
+
 </div>
+
 </button>
+
+
 
 
 <button class="menu-button disabled">
+
 <span>📚</span>
+
 <div>
+
 Library
-<small>Coming Soon</small>
+
+<small>
+Coming Soon
+</small>
+
 </div>
+
 </button>
 
 
+
 </div>
+
+
+<div class="history">
+
+<h3>History</h3>
+
+<div id="history-list"></div>
+
+</div>
+
+
+
+<div class="user-card">
+
+<div class="avatar">
+A
+</div>
+
+<div>
+Aarav
+</div>
+
+</div>
+
 
 </aside>
 
 
 
 
-<!-- MAIN CHAT -->
 
-<main class="chat">
+<!-- MAIN -->
 
 
-<div class="chat-header">
-<h2>Velora GPT</h2>
+<main class="main">
+
+
+
+<div class="welcome" id="welcome">
+
+
+<div class="orb-ring"></div>
+
 <div class="orb"></div>
-</div>
 
 
+<h1>Velora GPT</h1>
 
-<div id="chat-box" class="chat-box">
 
-<div class="message bot">
+<p>
 Hello 👋 I am Velora GPT. How can I help you?
-</div>
+</p>
+
 
 </div>
+
+
+
+
+
+
+<div id="chat-container"></div>
+
+
 
 
 
 
 <div class="input-area">
 
-<input
-id="user-input"
-type="text"
+
+<div class="input-box">
+
+
+<textarea
+id="message"
 placeholder="Message Velora GPT..."
-autocomplete="off"
-/>
+rows="1"></textarea>
 
 
-<button id="send-btn">
+
+<button id="send">
 ➤
 </button>
 
 
 </div>
+
+
+</div>
+
 
 
 </main>
@@ -107,6 +186,7 @@ autocomplete="off"
 
 
 <script src="/static/js/app.js"></script>
+
 
 </body>
 

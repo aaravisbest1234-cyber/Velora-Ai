@@ -1,119 +1,125 @@
-const chatBox = document.getElementById("chat-box");
-const input = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
+const sendBtn = document.getElementById("send");
+const input = document.getElementById("message");
+const chat = document.getElementById("chat-container");
+const welcome = document.getElementById("welcome");
+const orb = document.querySelector(".orb");
 
 
-function addMessage(text, sender) {
+function addMessage(text,type){
 
-    const message = document.createElement("div");
+    const div=document.createElement("div");
 
-    message.className = `message ${sender}`;
+    div.className="message "+type;
 
-    message.innerText = text;
+    div.innerText=text;
 
-    chatBox.appendChild(message);
+    chat.appendChild(div);
 
-    chatBox.scrollTop = chatBox.scrollHeight;
+    chat.scrollTop=chat.scrollHeight;
 }
 
 
 
-async function sendMessage() {
-
-    const text = input.value.trim();
-
-    if (!text) return;
+async function sendMessage(){
 
 
-    addMessage(text, "user");
-
-    input.value = "";
+    let message=input.value.trim();
 
 
-    const thinking = document.createElement("div");
-
-    thinking.className = "message bot";
-
-    thinking.innerText = "Velora GPT is thinking...";
-
-    chatBox.appendChild(thinking);
+    if(!message) return;
 
 
+    welcome.classList.add("fade-out");
 
-    try {
 
-        const response = await fetch("/chat", {
+    addMessage(message,"user");
 
-            method: "POST",
 
-            headers: {
-                "Content-Type": "application/json"
+    input.value="";
+
+
+    orb.classList.add("thinking");
+
+
+    try{
+
+
+        const res=await fetch("/chat",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
             },
 
-            body: JSON.stringify({
-                message: text
+            body:JSON.stringify({
+
+                message:message
+
             })
 
         });
 
 
 
-        const data = await response.json();
+        const data=await res.json();
 
 
-        thinking.remove();
+        orb.classList.remove("thinking");
+
+        orb.classList.add("replying");
 
 
-        if (data.reply) {
-
-            addMessage(data.reply, "bot");
-
-        } else {
-
-            addMessage(
-                "No response received.",
-                "bot"
-            );
-
-        }
+        addMessage(data.reply,"ai");
 
 
-    } catch (error) {
+        setTimeout(()=>{
+
+            orb.classList.remove("replying");
+
+        },1000);
 
 
-        thinking.remove();
+
+    }
+
+    catch(err){
 
 
         addMessage(
-            "⚠️ Cannot connect to Velora GPT.",
-            "bot"
+            "Error connecting to Velora GPT",
+            "ai"
         );
 
 
-        console.error(error);
+        orb.classList.remove("thinking");
+
+
+        console.log(err);
 
     }
+
 
 }
 
 
 
-sendBtn.addEventListener(
-    "click",
-    sendMessage
-);
+sendBtn.onclick=sendMessage;
 
 
 
 input.addEventListener(
-    "keydown",
-    function(event) {
+"keydown",
+(e)=>{
 
-        if (event.key === "Enter") {
 
-            sendMessage();
+    if(e.key==="Enter" && !e.shiftKey){
 
-        }
+        e.preventDefault();
+
+        sendMessage();
 
     }
-);
+
+
+});
