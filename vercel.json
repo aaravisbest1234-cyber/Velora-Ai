@@ -2,11 +2,7 @@
   "routes": [
     {
       "src": "/",
-      "dest": "/frontend/templates/index.html"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/frontend/static/$1"
+      "dest": "/index.html"
     }
   ]
 }
