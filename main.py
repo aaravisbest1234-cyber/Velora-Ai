@@ -13,7 +13,7 @@ load_dotenv()
 app = FastAPI()
 
 
-# Static files (CSS, JS)
+# Serve CSS / JS
 app.mount(
     "/static",
     StaticFiles(directory="frontend/static"),
@@ -21,33 +21,33 @@ app.mount(
 )
 
 
-# HTML templates
+# HTML folder
 templates = Jinja2Templates(
     directory="frontend/templates"
 )
 
 
-# Groq client
+# Groq setup
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
 
 
-# Home page
+# Homepage
 @app.get("/")
 async def home(request: Request):
 
     return templates.TemplateResponse(
-        "index.html",
-        {
+        name="index.html",
+        context={
             "request": request
         }
     )
 
 
 
-# Test route
+# Health check
 @app.get("/status")
 async def status():
 
@@ -57,7 +57,7 @@ async def status():
 
 
 
-# Chat API
+# Chat endpoint
 @app.post("/chat")
 async def chat(request: Request):
 
@@ -67,39 +67,49 @@ async def chat(request: Request):
 
 
     if not user_message:
-        return JSONResponse({
-            "reply": "Please enter a message."
-        })
 
-
-
-    response = client.chat.completions.create(
-
-        model="llama-3.3-70b-versatile",
-
-        messages=[
-
+        return JSONResponse(
             {
-                "role": "system",
-                "content":
-                "You are Velora AI, a smart helpful assistant."
-            },
-
-            {
-                "role": "user",
-                "content": user_message
+                "reply": "Please enter a message."
             }
-
-        ]
-
-    )
+        )
 
 
-    reply = response.choices[0].message.content
+
+    try:
+
+        response = client.chat.completions.create(
+
+            model="llama-3.3-70b-versatile",
+
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are Velora AI, a helpful intelligent assistant."
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+        )
 
 
-    return JSONResponse({
+        reply = response.choices[0].message.content
 
-        "reply": reply
 
-    })
+        return {
+            "reply": reply
+        }
+
+
+    except Exception as e:
+
+        print(e)
+
+        return JSONResponse(
+            {
+                "reply": "Velora is having trouble connecting 😭"
+            },
+            status_code=500
+        )
